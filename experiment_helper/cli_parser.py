@@ -197,3 +197,18 @@ class FOFLSetting(FrozenSetting):
     @cached_property
     def fo_fl_setting(self) -> "FOFLSetting":
         return FOFLSetting()
+
+
+class DpSetting(FrozenSetting):
+    dp: bool = Field(default=False)
+    dp_epsilon: float = Field(default=1.0, validation_alias=AliasChoices("dp-epsilon"))
+    dp_delta: float = Field(default=1e-5, validation_alias=AliasChoices("dp-delta"))
+    clip_method: Literal["fixed", "quantile"] = Field(
+        default="fixed",
+        validation_alias=AliasChoices("clip-method"),
+        description="Clipping method, options: fixed, quantile"
+    )
+    
+    @cached_property
+    def dp_setting(self) -> "DpSetting":
+        return DpSetting()

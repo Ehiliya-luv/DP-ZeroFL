@@ -25,7 +25,7 @@ from cezo_fl.util.language_utils import (
 )
 from cezo_fl.util.metrics import accuracy
 
-from experiment_helper.cli_parser import ModelSetting, OptimizerSetting, RGESetting, DpSetting, EstimatorType
+from experiment_helper.cli_parser import ModelSetting, OptimizerSetting, RGESetting, EstimatorType
 from experiment_helper.data import ImageClassificationTask, LmClassificationTask, LmGenerationTask
 from dataclasses import dataclass
 
@@ -203,7 +203,7 @@ def get_model_inferences_and_metrics(
 
 
 def get_gradient_estimator(
-    model: AllModel, device: torch.device, rge_setting: RGESetting, dp_setting: DpSetting, model_setting: ModelSetting
+    model: AllModel, device: torch.device, rge_setting: RGESetting, model_setting: ModelSetting
 ) -> RandomGradientEstimator | AdamForwardGradientEstimator:
     no_optim = not rge_setting.optim
     if rge_setting.estimator_type == EstimatorType.vanilla:

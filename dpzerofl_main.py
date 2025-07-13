@@ -39,6 +39,7 @@ class CliSetting(
     FederatedLearningSetting,
     RGESetting,
     ByzantineSetting,
+    DpSetting,
 ):
     """
     This is a replacement for regular argparse module.
@@ -75,6 +76,7 @@ def setup_server_and_clients(
             device=client_device,
             rge_setting=args.rge_setting,
             model_setting=args.model_setting,
+            dp_setting=args.dp_setting,
         )
 
         client = ResetClient(

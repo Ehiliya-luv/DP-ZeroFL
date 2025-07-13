@@ -226,7 +226,7 @@ if __name__ == "__main__":
             max_iteration = iterations[-1]
 
             # 生成文件名
-            base_filename = f"dp-sst2_{max_iteration}round"
+            base_filename = f"sst2_{max_iteration}round"
             result_dir = os.path.join("dp_results", "dpzerofl")
             os.makedirs(result_dir, exist_ok=True)
 

@@ -27,7 +27,6 @@ class RandomGradientEstimator(AbstractGradientEstimator):
         torch_dtype: torch.dtype = torch.float32,
         paramwise_perturb: bool = False,
         sgd_only_no_optim: bool = False,
-        dp_setting: DpSetting = DpSetting(),
     ):
         self.parameters_list: list[Parameter] = [p for p in parameters if p.requires_grad]
         self.total_dimensions = sum([p.numel() for p in self.parameters_list])
@@ -106,14 +105,12 @@ class RandomGradientEstimator(AbstractGradientEstimator):
         if not self.paramwise_perturb:
             # We generate the perturbation vector all together. It should be faster but consume
             # more memory
-            if not self.dp_setting.dp:
-                grad, perturbation_dir_grads = self._zo_grad_estimate(
-                    batch_inputs, labels, loss_fn, seed
-                )
-            else:
-                grad, perturbation_dir_grads = self._fc_dp_zo_grad_estimate(
-                    batch_inputs, labels, loss_fn, seed
-                )
+            grad, perturbation_dir_grads = self._zo_grad_estimate(
+                batch_inputs, labels, loss_fn, seed
+            )
+            # grad, perturbation_dir_grads = self._fc_dp_zo_grad_estimate(
+            #     batch_inputs, labels, loss_fn, seed
+            # )
             self.put_grad(grad)
         else:
             perturbation_dir_grads = self.zo_grad_estimate_paramwise(
