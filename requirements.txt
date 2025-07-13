@@ -1,0 +1,16 @@
+# Basis
+numpy==1.23
+tqdm==4.66
+tensorboardX==2.6
+
+# PyTorch and torchvision (version fixed)
+torch==2.3.0
+torchvision==0.18.0
+
+# Huggingface Face ecosystem
+transformers==4.41.0
+datasets==2.19.0
+accelerate==0.33.0
+peft==0.12.0
+pydantic==2.10.3
+pydantic-settings==2.7.0
