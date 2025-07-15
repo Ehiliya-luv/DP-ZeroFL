@@ -27,7 +27,13 @@ class RandomGradientEstimator(AbstractGradientEstimator):
         torch_dtype: torch.dtype = torch.float32,
         paramwise_perturb: bool = False,
         sgd_only_no_optim: bool = False,
-        dp_setting: DpSetting = DpSetting(),
+        use_dp: bool = False,
+        dp_epsilon: float = 1.0,
+        dp_delta: float = 1e-5,
+        clip_method: str = "fixed",
+        client_num: int = 2,
+        rounds: int = 2000,
+        local_updates: int = 1,
     ):
         self.parameters_list: list[Parameter] = [p for p in parameters if p.requires_grad]
         self.total_dimensions = sum([p.numel() for p in self.parameters_list])
@@ -37,6 +43,13 @@ class RandomGradientEstimator(AbstractGradientEstimator):
         self.num_pert = num_pert
         self.device = device
         self.torch_dtype = torch_dtype
+        self.use_dp = use_dp
+        self.dp_epsilon = dp_epsilon
+        self.dp_delta = dp_delta
+        self.clip_method = clip_method
+        self.client_num = client_num
+        self.rounds = rounds
+        self.local_updates = local_updates
         if isinstance(grad_estimate_method, RandomGradEstimateMethod):
             self.grad_estimate_method: RandomGradEstimateMethod = grad_estimate_method
         else:
@@ -106,7 +119,7 @@ class RandomGradientEstimator(AbstractGradientEstimator):
         if not self.paramwise_perturb:
             # We generate the perturbation vector all together. It should be faster but consume
             # more memory
-            if not self.dp_setting.dp:
+            if not self.use_dp:
                 grad, perturbation_dir_grads = self._zo_grad_estimate(
                     batch_inputs, labels, loss_fn, seed
                 )
@@ -135,6 +148,22 @@ class RandomGradientEstimator(AbstractGradientEstimator):
                 )
                 param.data.add_(_perturb, alpha=-lr * float(dir_grad) / num_pert)
 
+    # TODO: implement this clip function
+    def get_clip_threshold(
+        self,
+    ):
+        m = self.client_num
+        R = self.rounds
+        K = self.local_updates
+        P = self.num_pert
+        # alpha = 2
+        if self.clip_method == "fixed":
+            return pow(m*P*K*R, 1/4)
+        elif self.clip_method == "quantile":
+            print("not implemented yet.")
+            exit()
+
+    # TODO: uniform this function to do the actual update
     def _fc_dp_zo_grad_estimate(
         self,
         batch_inputs: torch.Tensor,
@@ -156,12 +185,9 @@ class RandomGradientEstimator(AbstractGradientEstimator):
         P = 5
         R = 2000
         K = 100
-        epsilon = 1
-        delta = 0.01
-        c = 100
-        clipping_threshold = pow(m*P*K*R, 1/4)
-        epsilon = 5
-        delta = 1e-5
+        clipping_threshold = self.get_clip_threshold()
+        epsilon = self.dp_epsilon
+        delta = self.dp_delta
         grad: torch.Tensor | None = None
         dir_grads = []
         denominator_factor = (
@@ -191,7 +217,7 @@ class RandomGradientEstimator(AbstractGradientEstimator):
             # 计算对数项
             log_term = torch.log(torch.tensor(1.25 / delta))
             # 计算高斯噪声的标准差
-            noise_std = 1 * (2 * clipping_threshold / epsilon) * torch.sqrt(2.0 * log_term)
+            noise_std = (2 * clipping_threshold / epsilon) * torch.sqrt(2.0 * log_term)
             # 生成符合高斯分布的噪声
             noise = torch.normal(
                 mean=0.0,

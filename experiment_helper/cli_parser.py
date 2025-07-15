@@ -200,12 +200,12 @@ class FOFLSetting(FrozenSetting):
 
 
 class DpSetting(FrozenSetting):
-    dp: bool = Field(default=False)
-    dp_epsilon: float = Field(default=1.0, validation_alias=AliasChoices("dp-epsilon"))
-    dp_delta: float = Field(default=1e-5, validation_alias=AliasChoices("dp-delta"))
+    use_dp: bool = Field(default=False)
+    dp_epsilon: float = Field(default=1.0, validation_alias=AliasChoices("epsilon"))
+    dp_delta: float = Field(default=1e-5, validation_alias=AliasChoices("delta"))
     clip_method: Literal["fixed", "quantile"] = Field(
         default="fixed",
-        validation_alias=AliasChoices("clip-method"),
+        validation_alias=AliasChoices("clip_method"),
         description="Clipping method, options: fixed, quantile"
     )
     

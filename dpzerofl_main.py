@@ -25,6 +25,7 @@ from experiment_helper.cli_parser import (
     FederatedLearningSetting,
     RGESetting,
     ByzantineSetting,
+    DpSetting,
 )
 from experiment_helper.device import use_device
 from experiment_helper.data import get_dataloaders
@@ -77,6 +78,7 @@ def setup_server_and_clients(
             rge_setting=args.rge_setting,
             model_setting=args.model_setting,
             dp_setting=args.dp_setting,
+            fl_setting=args.federated_learning_setting
         )
 
         client = ResetClient(
@@ -111,6 +113,8 @@ def setup_server_and_clients(
         device=server_device,
         rge_setting=args.rge_setting,
         model_setting=args.model_setting,
+        dp_setting=args.dp_setting,
+        fl_setting=args.federated_learning_setting
     )
 
     server.set_server_model_and_criterion(
@@ -167,7 +171,7 @@ def setup_server_and_clients(
 
 if __name__ == "__main__":
     args = CliSetting()
-    # print(args.adjust_perturb)
+    print(args.dp_setting)
     device_map = use_device(args.device_setting, args.num_clients)
     train_loaders, test_loader = get_dataloaders(
         args.data_setting, args.num_clients, args.seed, args.get_hf_model_name()

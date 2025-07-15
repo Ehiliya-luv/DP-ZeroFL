@@ -203,7 +203,7 @@ def get_model_inferences_and_metrics(
 
 
 def get_gradient_estimator(
-    model: AllModel, device: torch.device, rge_setting: RGESetting, model_setting: ModelSetting
+    model: AllModel, device: torch.device, rge_setting: RGESetting, model_setting: ModelSetting,
 ) -> RandomGradientEstimator | AdamForwardGradientEstimator:
     no_optim = not rge_setting.optim
     if rge_setting.estimator_type == EstimatorType.vanilla:

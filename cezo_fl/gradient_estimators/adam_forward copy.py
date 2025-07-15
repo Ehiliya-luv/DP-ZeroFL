@@ -22,10 +22,6 @@ class AdamForwardGradientEstimator(AbstractGradientEstimator):
         hessian_smooth: float = 0.95,
         device: str | torch.device | None = None,
         torch_dtype: torch.dtype = torch.float32,
-        use_dp: bool = False,
-        dp_epsilon: float = 1.0,
-        dp_delta: float = 1e-5,
-        clip_method: str = "fixed",
     ):
         self.parameters_list: list[Parameter] = [p for p in parameters if p.requires_grad]
         self.total_dimensions = sum([p.numel() for p in self.parameters_list])

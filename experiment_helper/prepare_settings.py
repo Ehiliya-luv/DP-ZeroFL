@@ -25,7 +25,7 @@ from cezo_fl.util.language_utils import (
 )
 from cezo_fl.util.metrics import accuracy
 
-from experiment_helper.cli_parser import ModelSetting, OptimizerSetting, RGESetting, DpSetting, EstimatorType
+from experiment_helper.cli_parser import ModelSetting, OptimizerSetting, RGESetting, DpSetting, FederatedLearningSetting,EstimatorType
 from experiment_helper.data import ImageClassificationTask, LmClassificationTask, LmGenerationTask
 from dataclasses import dataclass
 
@@ -203,7 +203,9 @@ def get_model_inferences_and_metrics(
 
 
 def get_gradient_estimator(
-    model: AllModel, device: torch.device, rge_setting: RGESetting, dp_setting: DpSetting, model_setting: ModelSetting
+    model: AllModel, device: torch.device, rge_setting: RGESetting,
+        dp_setting: DpSetting, model_setting: ModelSetting,
+        fl_setting: FederatedLearningSetting
 ) -> RandomGradientEstimator | AdamForwardGradientEstimator:
     no_optim = not rge_setting.optim
     if rge_setting.estimator_type == EstimatorType.vanilla:
@@ -217,6 +219,13 @@ def get_gradient_estimator(
             # To save memory consumption, we have to use parameter-wise perturb + no_optim together.
             sgd_only_no_optim=no_optim,
             paramwise_perturb=no_optim,
+            use_dp=dp_setting.use_dp,
+            dp_epsilon=dp_setting.dp_epsilon,
+            dp_delta=dp_setting.dp_delta,
+            clip_method=dp_setting.clip_method,
+            rounds=fl_setting.iterations,
+            local_updates=fl_setting.local_update_steps,
+            client_num=fl_setting.num_clients
         )
     elif rge_setting.estimator_type == EstimatorType.adam_forward:
         return AdamForwardGradientEstimator(
@@ -227,6 +236,10 @@ def get_gradient_estimator(
             torch_dtype=model_setting.get_torch_dtype(),
             k_update_strategy=rge_setting.k_update_strategy,
             hessian_smooth=rge_setting.hessian_smooth,
+            use_dp=dp_setting.use_dp,
+            dp_epsilon=dp_setting.dp_epsilon,
+            dp_delta=dp_setting.dp_delta,
+            clip_method=dp_setting.clip_method,
         )
     else:
         raise ValueError(f"Invalid estimator type: {rge_setting.estimator_type}")
