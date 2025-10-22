@@ -1,4 +1,4 @@
-# Dimension-Free Communication in Federated Learning (DeComFL)
+# Zeroth-Order Federated Learning under Local Differential Privacy: Clipping Mechanisms and Convergence Analysis (DP-ZeroFL)
 
 ![ci](https://github.com/ZidongLiu/FedDisco/actions/workflows/ci.yaml/badge.svg) ![apache](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
 
